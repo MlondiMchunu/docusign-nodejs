@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv")
+const docusign = require("docusign-esign")
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -16,6 +17,8 @@ app.post("/form", (req, res) => {
 });
 
 app.get("/", (req, res) => {
+      let dsApiClient = new docusign.ApiClient();
+      dsApiClient.setBasePath(process.env.base_path)
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
