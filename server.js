@@ -1,8 +1,9 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const dotenv = require("dotenv")
-const docusign = require("docusign-esign")
+const dotenv = require("dotenv");
+const docusign = require("docusign-esign");
+const fs = require("fs")
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -10,15 +11,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 dotenv.config();
 
 app.post("/form", (req, res) => {
-    const data = req.body
+  const data = req.body;
   console.log("received form data", req.body);
   //res.send({ "Form Data": req.body });
-  res.send({"form data":data})
+  res.send({ "form data": data });
 });
 
-app.get("/", (req, res) => {
-      let dsApiClient = new docusign.ApiClient();
-      dsApiClient.setBasePath(process.env.base_path)
+app.get("/", async(req, res) => {
+  let dsApiClient = new docusign.ApiClient();
+  dsApiClient.setBasePath(process.env.base_path);
+  const results = await dsApiClient.requestJWTUserToken(
+    process.env.integration_key, 
+    process.env.user_id, 
+    "signature", 
+    fs.readFileSync(path.join(__dirname,"private key")), 
+    3600
+  );
+
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
