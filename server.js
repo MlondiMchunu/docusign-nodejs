@@ -3,7 +3,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const docusign = require("docusign-esign");
-const fs = require("fs")
+const fs = require("fs");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,20 +17,25 @@ app.post("/form", (req, res) => {
   res.send({ "form data": data });
 });
 
-app.get("/", async(req, res) => {
+app.get("/", async (req, res) => {
   let dsApiClient = new docusign.ApiClient();
   dsApiClient.setBasePath(process.env.base_path);
   const results = await dsApiClient.requestJWTUserToken(
-    process.env.integration_key, 
-    process.env.user_id, 
-    "signature", 
-    fs.readFileSync(path.join(__dirname,"private key")), 
+    process.env.integration_key,
+    process.env.user_id,
+    "signature",
+    fs.readFileSync(path.join(__dirname, "private key")),
     3600
   );
+  console.log(results.body);
+  req.session.access_token = results.body.access_token;
+  req.session.expires_at = Date.now() + (results.body.expires_in - 60) * 1000;
 
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
 app.listen(3000, () => {
-  console.log(`Server is running on port 3000`, process.env.base_path);
+  console.log(`Server is running on port 3000`);
 });
+
+//https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=a4141527-c338-45ae-84c1-f4446b2e2888&redirect_uri=http://localhost:3000/
