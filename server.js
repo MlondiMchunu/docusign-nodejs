@@ -24,6 +24,9 @@ app.post("/form", (req, res) => {
 });
 
 app.get("/", async (req, res) => {
+  if(req.session.access_token && Date.now() < req.session.expires_at) {
+  console.log("re-using access_token",req)
+  }
   let dsApiClient = new docusign.ApiClient();
   dsApiClient.setBasePath(process.env.base_path);
   const results = await dsApiClient.requestJWTUserToken(
