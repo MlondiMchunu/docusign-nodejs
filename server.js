@@ -4,9 +4,15 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const docusign = require("docusign-esign");
 const fs = require("fs");
+const session = require("express-session")
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret:"mjm984645mm",
+  resave:true,
+  saveUninitialized:true
+}))
 
 dotenv.config();
 
@@ -24,7 +30,7 @@ app.get("/", async (req, res) => {
     process.env.integration_key,
     process.env.user_id,
     "signature",
-    fs.readFileSync(path.join(__dirname, "private key")),
+    fs.readFileSync(path.join(__dirname, "private.key")),
     3600
   );
   console.log(results.body);
