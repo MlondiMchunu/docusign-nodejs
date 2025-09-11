@@ -4,15 +4,17 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const docusign = require("docusign-esign");
 const fs = require("fs");
-const session = require("express-session")
+const session = require("express-session");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-  secret:"mjm984645mm",
-  resave:true,
-  saveUninitialized:true
-}))
+app.use(
+  session({
+    secret: "mjm984645mm",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 
 dotenv.config();
 
@@ -24,22 +26,23 @@ app.post("/form", (req, res) => {
 });
 
 app.get("/", async (req, res) => {
-  if(req.session.access_token && Date.now() < req.session.expires_at) {
-  console.log("re-using access_token",req)
+  if (req.session.access_token && Date.now() < req.session.expires_at) {
+    console.log("re-using access_token", req);
+  } else {
+    console.log("generating new access token");
+    let dsApiClient = new docusign.ApiClient();
+    dsApiClient.setBasePath(process.env.base_path);
+    const results = await dsApiClient.requestJWTUserToken(
+      process.env.integration_key,
+      process.env.user_id,
+      "signature",
+      fs.readFileSync(path.join(__dirname, "private.key")),
+      3600
+    );
+    console.log(results.body);
+    req.session.access_token = results.body.access_token;
+    req.session.expires_at = Date.now() + (results.body.expires_in - 60) * 1000;
   }
-  let dsApiClient = new docusign.ApiClient();
-  dsApiClient.setBasePath(process.env.base_path);
-  const results = await dsApiClient.requestJWTUserToken(
-    process.env.integration_key,
-    process.env.user_id,
-    "signature",
-    fs.readFileSync(path.join(__dirname, "private.key")),
-    3600
-  );
-  console.log(results.body);
-  req.session.access_token = results.body.access_token;
-  req.session.expires_at = Date.now() + (results.body.expires_in - 60) * 1000;
-
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
