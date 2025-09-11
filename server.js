@@ -25,8 +25,9 @@ app.post("/form", (req, res) => {
   res.send({ "form data": data });
 });
 
-app.get("/", async (req, res) => {
-  if (req.session.access_token && Date.now() < req.session.expires_at) {
+
+checkToken =async(request)=>{
+ if (req.session.access_token && Date.now() < req.session.expires_at) {
     console.log("re-using access_token", req);
   } else {
     console.log("generating new access token");
@@ -43,6 +44,9 @@ app.get("/", async (req, res) => {
     req.session.access_token = results.body.access_token;
     req.session.expires_at = Date.now() + (results.body.expires_in - 60) * 1000;
   }
+}
+
+app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
