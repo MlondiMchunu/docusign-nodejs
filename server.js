@@ -25,6 +25,14 @@ app.post("/form", (req, res) => {
   res.send({ "form data": data });
 });
 
+getEnvelopesApi=(req)=>{
+  let dsaApiClient = new docusign.ApiClient();
+  dsApiClient.setBasePath(process.env.base_path);
+  dsApiClient.addDefaultHeader('Authorization', 'Bearer' + req.session.access_token);
+
+  return new docusign.EnvelopesApi(dsApiClient);
+}
+
 getEnvelopesApi = (req) => {
   let dsApiClient = new docusign.ApiClient();
   dsApiClient.setBasePath(process.env.base_path);
