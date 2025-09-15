@@ -57,7 +57,7 @@ function makeEnvelope(args) {
 
   // create the envelope definition
   let env = new docusign.EnvelopeDefinition();
-  env.templateId = args.templateId;
+  env.templateId = process.env.template_id;
 
   // Create template role elements to connect the signer and cc recipients
   // to the template
