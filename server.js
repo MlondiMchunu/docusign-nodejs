@@ -43,7 +43,7 @@ getEnvelopesApi = (req) => {
   return new docusign.EnvelopesApi(dsApiClient);
 };
 
-function makeEnvelope(args) {
+function makeEnvelope(name,email) {
   // Data for this method
   // args.signerEmail
   // args.signerName
@@ -63,8 +63,8 @@ function makeEnvelope(args) {
   // to the template
   // We're setting the parameters via the object creation
   let signer1 = docusign.TemplateRole.constructFromObject({
-    email: args.signerEmail,
-    name: args.signerName,
+    email: this.email,
+    name: this.name,
     roleName: 'signer',
   });
 
