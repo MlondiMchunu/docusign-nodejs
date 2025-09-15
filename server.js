@@ -25,9 +25,18 @@ app.post("/form", (req, res) => {
   res.send({ "form data": data });
 });
 
+getEnvelopesApi = (req) => {
+  let dsApiClient = new docusign.ApiClient();
+  dsApiClient.setBasePath(process.env.base_path);
+  dsApiClient.addDefaultHeader(
+    "Authorization",
+    "Bearer" + req.session.access_token
+  );
+  return new docusign.EnvelopesApi(dsApiClient);
+};
 
-checkToken =async(request)=>{
- if (req.session.access_token && Date.now() < req.session.expires_at) {
+checkToken = async (req) => {
+  if (req.session.access_token && Date.now() < req.session.expires_at) {
     console.log("re-using access_token", req);
   } else {
     console.log("generating new access token");
@@ -44,9 +53,10 @@ checkToken =async(request)=>{
     req.session.access_token = results.body.access_token;
     req.session.expires_at = Date.now() + (results.body.expires_in - 60) * 1000;
   }
-}
+};
 
 app.get("/", async (req, res) => {
+  await checkToken(req);
   res.sendFile(path.join(__dirname, "main.html"));
 });
 
