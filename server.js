@@ -18,26 +18,31 @@ app.use(
 
 dotenv.config();
 
-app.post("/form", async(req, res) => {
-
+app.post("/form", async (req, res) => {
   await checkToken();
 
-  //make envelope request body
-let envelope = makeEnvelope(req.body.name, req.body.email);
+  let envelopesApi = getEnvelopesApi(req);
 
-  const data = req.body;
-  console.log("received form data", req.body);
-  //res.send({ "Form Data": req.body });
-  res.send({ "form data": data });
+  //make envelope request body
+  let envelope = makeEnvelope(req.body.name, req.body.email);
+
+  let results = await envelopesApi.createEnvelope(
+    process.env.account_id,
+    { envelopeDefinition: envelope }
+
+
 });
 
-getEnvelopesApi=(req)=>{
+getEnvelopesApi = (req) => {
   let dsaApiClient = new docusign.ApiClient();
   dsApiClient.setBasePath(process.env.base_path);
-  dsApiClient.addDefaultHeader('Authorization', 'Bearer' + req.session.access_token);
+  dsApiClient.addDefaultHeader(
+    "Authorization",
+    "Bearer" + req.session.access_token
+  );
 
   return new docusign.EnvelopesApi(dsApiClient);
-}
+};
 
 getEnvelopesApi = (req) => {
   let dsApiClient = new docusign.ApiClient();
@@ -49,7 +54,7 @@ getEnvelopesApi = (req) => {
   return new docusign.EnvelopesApi(dsApiClient);
 };
 
-function makeEnvelope(name,email) {
+function makeEnvelope(name, email) {
   // Data for this method
   // args.signerEmail
   // args.signerName
@@ -69,12 +74,12 @@ function makeEnvelope(name,email) {
   let signer1 = docusign.TemplateRole.constructFromObject({
     email: this.email,
     name: this.name,
-    roleName: 'Applicant',
+    roleName: "Applicant",
   });
 
   // Add the TemplateRole objects to the envelope object
   env.templateRoles = [signer1];
-  env.status = 'sent'; 
+  env.status = "sent";
   return env;
 }
 
