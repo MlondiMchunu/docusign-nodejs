@@ -18,7 +18,13 @@ app.use(
 
 dotenv.config();
 
-app.post("/form", (req, res) => {
+app.post("/form", async(req, res) => {
+
+  await checkToken();
+
+  //make envelope request body
+let envelope = makeEnvelope(req.envelopesApi)
+
   const data = req.body;
   console.log("received form data", req.body);
   //res.send({ "Form Data": req.body });
@@ -47,8 +53,6 @@ function makeEnvelope(name,email) {
   // Data for this method
   // args.signerEmail
   // args.signerName
-  // args.ccEmail
-  // args.ccName
   // args.templateId
 
   // The envelope has two recipients.
@@ -65,20 +69,12 @@ function makeEnvelope(name,email) {
   let signer1 = docusign.TemplateRole.constructFromObject({
     email: this.email,
     name: this.name,
-    roleName: 'signer',
+    roleName: 'Applicant',
   });
 
-  // Create a cc template role.
-  // We're setting the parameters via setters
-  let cc1 = new docusign.TemplateRole();
-  cc1.email = args.ccEmail;
-  cc1.name = args.ccName;
-  cc1.roleName = 'cc';
-
   // Add the TemplateRole objects to the envelope object
-  env.templateRoles = [signer1, cc1];
-  env.status = 'sent'; // We want the envelope to be sent
-
+  env.templateRoles = [signer1];
+  env.status = 'sent'; 
   return env;
 }
 
