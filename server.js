@@ -31,6 +31,12 @@ app.post("/form", async (req, res) => {
   });
   console.log("Envelope results : ", results);
   res.send("received form data");
+
+  let viewRequest = makeRecipentViewRequest(req.body.name, req.body.email);
+  results = await envelopesApi.createRecipientView(process.env.account_id,results.envelopeId)
+
+  console.log({envelopeId:envelopeId, redirectUrl:results.url});
+  res.send("received");
 });
 
 getEnvelopesApi = (req) => {
@@ -72,8 +78,8 @@ function makeEnvelope(name, email) {
   // to the template
   // We're setting the parameters via the object creation
   let signer1 = docusign.TemplateRole.constructFromObject({
-    email: this.email,
-    name: this.name,
+    email: email,
+    name: name,
     clientUserId: process.env.client_user_id,
     roleName: "Applicant",
   });
@@ -84,8 +90,18 @@ function makeEnvelope(name, email) {
   return env;
 }
 
-makeRecipentViewRequest=()=>{
+makeRecipentViewRequest=(name,email)=>{
   let viewRequest = new docusign.RecipentViewRequest();
+
+  viewRequest.returnUrl = "/success";
+
+  viewRequest.authenticationMethod = 'none';
+
+  viewRequest.email = email;
+  viewRequest.userName = name;
+  viewRequest.clientUserId = process.env.client_user_id;
+
+  return viewRequest;
 }
 
 checkToken = async (req) => {
