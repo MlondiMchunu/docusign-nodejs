@@ -84,6 +84,10 @@ function makeEnvelope(name, email) {
   return env;
 }
 
+makeRecipentViewRequest=()=>{
+  let viewRequest = new docusign.RecipentViewRequest();
+}
+
 checkToken = async (req) => {
   if (req.session.access_token && Date.now() < req.session.expires_at) {
     console.log("re-using access_token", req);
