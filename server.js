@@ -23,7 +23,7 @@ app.post("/form", async(req, res) => {
   await checkToken();
 
   //make envelope request body
-let envelope = makeEnvelope(req.envelopesApi)
+let envelope = makeEnvelope(req.body.name, req.body.email);
 
   const data = req.body;
   console.log("received form data", req.body);
