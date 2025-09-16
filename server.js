@@ -19,18 +19,18 @@ app.use(
 dotenv.config();
 
 app.post("/form", async (req, res) => {
-  await checkToken();
+  await checkToken(req);
 
   let envelopesApi = getEnvelopesApi(req);
 
   //make envelope request body
   let envelope = makeEnvelope(req.body.name, req.body.email);
 
-  let results = await envelopesApi.createEnvelope(
-    process.env.account_id,
-    { envelopeDefinition: envelope }
-
-
+  let results = await envelopesApi.createEnvelope(process.env.account_id, {
+    envelopeDefinition: envelope,
+  });
+  console.log("Envelope results : ", results);
+  res.send("received form data");
 });
 
 getEnvelopesApi = (req) => {
@@ -74,6 +74,7 @@ function makeEnvelope(name, email) {
   let signer1 = docusign.TemplateRole.constructFromObject({
     email: this.email,
     name: this.name,
+    clientUserId: process.env.client_user_id,
     roleName: "Applicant",
   });
 
@@ -106,6 +107,10 @@ checkToken = async (req) => {
 app.get("/", async (req, res) => {
   await checkToken(req);
   res.sendFile(path.join(__dirname, "main.html"));
+});
+
+app.get("/success", (req, res) => {
+  res.send("Success");
 });
 
 app.listen(3000, () => {
