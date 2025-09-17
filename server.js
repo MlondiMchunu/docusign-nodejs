@@ -33,10 +33,13 @@ app.post("/form", async (req, res) => {
   res.send("received form data");
 
   let viewRequest = makeRecipentViewRequest(req.body.name, req.body.email);
-  results = await envelopesApi.createRecipientView(process.env.account_id,results.envelopeId)
+  results = await envelopesApi.createRecipientView(
+    process.env.account_id,
+    results.envelopeId,
+    { recipientViewRequest: viewRequest }
+  );
 
-  console.log({envelopeId:envelopeId, redirectUrl:results.url});
-  res.send("received");
+  res.redirect(results.url);
 });
 
 getEnvelopesApi = (req) => {
@@ -90,19 +93,19 @@ function makeEnvelope(name, email) {
   return env;
 }
 
-makeRecipentViewRequest=(name,email)=>{
+makeRecipentViewRequest = (name, email) => {
   let viewRequest = new docusign.RecipentViewRequest();
 
-  viewRequest.returnUrl = "/success";
+  viewRequest.returnUrl = "http://localhost:3000/success";
 
-  viewRequest.authenticationMethod = 'none';
+  viewRequest.authenticationMethod = "none";
 
   viewRequest.email = email;
   viewRequest.userName = name;
   viewRequest.clientUserId = process.env.client_user_id;
 
   return viewRequest;
-}
+};
 
 checkToken = async (req) => {
   if (req.session.access_token && Date.now() < req.session.expires_at) {
